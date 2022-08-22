@@ -9,7 +9,7 @@ exports.getAllPackages = async (req, res, next) => {
     let packages = await getDocs(docRef);
     let questions = []
     packages.forEach((doc) => {
-        questions.push({title: doc.data().title, id: doc.data().id, description: doc.data().description})
+        questions.push({title: doc.data().title, id: doc.data().id, description: doc.data().description, price: doc.data().price})
     // console.log(`${doc.id} => ${doc.data()}`);
     });
     questions.sort()

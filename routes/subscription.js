@@ -2,8 +2,10 @@ const express = require('express')
 const router = express.Router()
 
 const SubsCrtl = require('../controllers/subscription')
-router.use('/success/:email',SubsCrtl.paymentSuccess);
-router.use('/failed/:email',SubsCrtl.paymentCancel)
+router.use('/success/:email',SubsCrtl.StripePaymentSuccess);
+router.use('/failed/:email',SubsCrtl.StripePaymentCancel);
+router.use('/paypal_success', SubsCrtl.paypalSuccess);
+router.use('/paypal_cancel', SubsCrtl.paypalCancel)
 const authorizationToken = require('../middlewares/auth');
 
 

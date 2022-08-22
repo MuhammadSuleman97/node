@@ -10,8 +10,13 @@ require('dotenv').config()
 // const db = firebase.firestore();  
 
 const {initializeApp} = require('firebase/app');
-const {getAuth} = require('firebase/auth');
-const {getFirestore} = require('firebase/firestore');
+const paypal = require('paypal-rest-sdk');
+
+paypal.configure({
+  'mode': 'sandbox', 
+  'client_id': 'AQrLroU-NzKZDIWck_9Qw01lU-9cXBsEz9zIXTO71MyiclB6ORM-V5lPkmw-JnL2n6XoluNavV9EKsYW',
+  'client_secret': 'EP-UkocoZYxELsNUJL4kfef8lCzuz8HJeV7AdCURxmDVfS7L6_c7bf7fkjUkFMAAGHBKpDuCAEfVGC89'
+});
 
 const firebaseConfig = {
     apiKey: "AIzaSyAeC4JoigLnWM2sA6W9P0TMaHCmlqJKvyg",
