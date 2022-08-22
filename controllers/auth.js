@@ -51,8 +51,13 @@ exports.signIn = async (req, res, next) => {
         let userResponse;
         const accessToken = jwt.sign({id: email}, "ABCDEFG")
         try{
-            userResponse = await signInWithEmailAndPassword(auth ,email , password)
+            userResponse = await signInWithEmailAndPassword(auth ,email , password);
             userResponse["accessToken"] = accessToken;
+            userRef = doc(db, "Users", email);
+            let userSnap = await getDoc(userRef)
+            let user = userSnap.data();
+            user.Token ? user.Token = accessToken : user["Token"] = accessToken;
+            await updateDoc(userRef, user)
         }catch(e){
             console.log(e);
             return res.json({status: 400, message: e.message });

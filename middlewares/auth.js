@@ -11,6 +11,9 @@ module.exports = authenticateToken = (req, res, next) => {
     }
 
     jwt.verify(token, "ABCDEFG", async (err, payload) => {
+        if (err) {
+            return res.sendStatus(403);
+        }
         req.email = payload.id;
         let docRef = doc(db,"Users",req.email);
         let docSnap = await getDoc(docRef)
@@ -20,9 +23,6 @@ module.exports = authenticateToken = (req, res, next) => {
             console.log("No such user's document!");
             return res.json({status: 404, message: "No User Found!"})
           }
-        if (err) {
-            return res.sendStatus(403);
-        }
         next();
     });
 }
