@@ -1,4 +1,4 @@
-const {getFirestore, doc, setDoc, getDoc, getDocs, collection, updateDoc} = require('firebase/firestore');
+const {getFirestore, doc, setDoc, getDoc, getDocs, collection, updateDoc, getId} = require('firebase/firestore');
 const db = getFirestore();
 const { getAuth } = require('firebase/auth');
 const auth = getAuth();
@@ -12,10 +12,9 @@ exports.getSingleQuestion = async (req, res, next) => {
             console.log("Document data:", docSnap.data());
             return res.json({status: 200, message: "Retrieved document",question})
           } else {
-            console.log("No such document!");
-            return res.json({status: 404, message: "No Such document Exist"})
+            console.log("No such Question!");
+            return res.json({status: 404, message: "No Such Question Exist"})
           }
-    
     }
     catch(e)
     {
@@ -29,11 +28,10 @@ exports.getAllQuestions = async (req, res, next) => {
         const querySnapshot = await getDocs(collection(db, "Questions"));
         let questions=[]
         querySnapshot.forEach((doc) => {
-            questions.push({title: doc.data().title, isLocked: doc.data().isLocked, is_attempted: req.user.attemptedQuestions.includes(doc.id)})
-        // console.log(`${doc.id} => ${doc.data()}`);
+            questions.push({title: doc.data().title, isLocked: doc.data().isLocked, is_attempted: req.user.attemptedQuestions.includes(doc.id), question_id: doc.id})
         });
         questions.sort()
-        return res.json({status: 200, message: "Retrieved all documents",data: {questions: questions, is_subscribed: new Date(req.user.subscription_validity.seconds * 1000) > new Date()}})
+        return res.json({status: 200, message: "Retrieved all documents",data: {questions: questions, is_subscribed: new Date(req.user.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium'}})
     }
     catch(e)
     {

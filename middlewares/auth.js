@@ -14,7 +14,7 @@ module.exports = authenticateToken = (req, res, next) => {
         if (err) {
             return res.sendStatus(403);
         }
-        req.email = payload.id;
+        req.email = payload.id.toLowerCase();
         let docRef = doc(db,"Users",req.email);
         let docSnap = await getDoc(docRef)
         if (docSnap.exists()) {

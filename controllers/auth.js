@@ -18,8 +18,10 @@ exports.signup = async (req,res,next)=>{
             first_name: first_name,
             last_name: last_name,
             attemptedQuestions: [],
-            progress: '0%', 
-            subscription_validity: new Date(new Date().setDate(new Date().getDate() - 1))
+            transactions:[],
+            progress: '0%',
+            package_id:'free',
+            subscription_validity: new Date(new Date().setFullYear(new Date().getFullYear() + 5))
         }
         let userResponse;
         try{
@@ -27,14 +29,15 @@ exports.signup = async (req,res,next)=>{
             
         }catch(e){
             console.log(e);
-            return res.json({status: 400, message: e.message })
+            return res.json({status: 400, message: "Sorry, This Email is already Registered!" })
         }
         const docRef = doc(db, "Users",userResponse.user.email);
-        await setDoc(docRef, user)
+        user["accessToken"] = jwt.sign({id: email.toLowerCase()}, "ABCDEFG")
+        await setDoc(docRef, user);
         return res.json({
             status: 200,
-            message: "User Created",
-            data: {userResponse}
+            message: "Congrats, Your account has been created!",
+            data: {user: user}
         });
     }catch(e){
         console.log(e);
@@ -44,25 +47,29 @@ exports.signup = async (req,res,next)=>{
 
 exports.signIn = async (req, res, next) => {
     try{
-        const email = req.body.email
-        const password = req.body.password
+        let email = req.body.email
+        const password = req.body.password;
         
-        if(!email || !password) return res.json({status: 400, message:"provide valid email and password!"})
+        if(!email || !password) return res.json({status: 400, message:"provide valid email and password!"});
+        email = email.toLowerCase();
         let userResponse;
-        const accessToken = jwt.sign({id: email}, "ABCDEFG")
+        const accessToken = jwt.sign({id: email.toLowerCase()}, "ABCDEFG");
+        let user;
         try{
             userResponse = await signInWithEmailAndPassword(auth ,email , password);
-            userResponse["accessToken"] = accessToken;
             userRef = doc(db, "Users", email);
             let userSnap = await getDoc(userRef)
-            let user = userSnap.data();
-            user.Token ? user.Token = accessToken : user["Token"] = accessToken;
-            await updateDoc(userRef, user)
+            user = await userSnap.data();
+            user ? user["accessToken"] = accessToken : ''
         }catch(e){
             console.log(e);
-            return res.json({status: 400, message: e.message });
+            if (e.code === 'auth/wrong-password'){
+                return res.json({status: 400, message: "Please Enter correct Password!" });
+            } else if(e.code === 'auth/user-not-found'){
+                return res.json({status: 404, message: "User Account Does not Exist!" });
+            }
         }
-        return res.json({status: "success", data: {userResponse}})
+        return res.json({status: 200, message: "Welcome to BestWebCv", data: {user}})
 
     }catch(e){
         console.log(e);
@@ -77,8 +84,8 @@ exports.forgetPassword = async (req, res, next) => {
             return res.json({status: 400, message:"Provide a valid Email Address!"})
         }
         let Response = await sendPasswordResetEmail(auth, email);
-        return res.json({status: 200, message: "Email Sent"})
-    }catch(e){console.log(e);return res.json({status: 400, message:e.message})}
+        return res.json({status: 200, message: "Email Sent to your registered account (Please check spam as well)"})
+    }catch(e){console.log(e);return res.json({status: 400, message: "Please Provide a valid Email Address"})}
 }
 
 

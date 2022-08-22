@@ -1,7 +1,8 @@
 const {getFirestore, doc, setDoc, getDoc, getDocs, collection, updateDoc} = require('firebase/firestore');
 const db = getFirestore();
 const stripe = require('stripe')('sk_test_51LVrjiJKThHcYZjG9TI5demkopupihchNUMbQzMrVHDr65l7EdeONvZ1gP6XMNvirdWrSVCVupFnqSFaBKruFd6H00w7vyJPot');
-const paypal = require('paypal-rest-sdk')
+const paypal = require('paypal-rest-sdk');
+const base_url = process.env.BASE_URL || 'http://localhost:3000'
 
 exports.payForSubscription = async (req, res, next) => {
     const email = req.email;
@@ -11,18 +12,19 @@ exports.payForSubscription = async (req, res, next) => {
     
     if(!pay_method) return res.json({ status : "failed", message : "Please provide a valid payment Method!"})
     if(!package_id) return res.json({ status : "failed", message : "Please provide a valid package_id"})
-    const docRef = doc(db,"Package",package_id);
-    let docSnap = await getDoc(docRef);
-    let package = docSnap.data()
-    let date = new Date(user.subscription_validity.seconds * 1000);
-    if (date> new Date()){
-        return res.json({ status: 200, message: `Your Subscription is Valid till ${date.toLocaleDateString()}`})
-    }
-    if (docSnap.exists()) {
-        let package = docSnap.data()
+
+    const packRef = doc(db,"Package",package_id);
+    let packSnap = await getDoc(packRef);
+    let package;
+    if (packSnap.exists()) {
+        package = packSnap.data()
     } else {
         console.log("Invalid Package ID");
         return res.json({status: 404, message: "No Package Found!"})
+    }
+    let date = new Date(user.subscription_validity.seconds * 1000);
+    if (user.package_id == package_id && date > new Date()){
+        return res.json({ status: 200, message: `Your ${packSnap.id} Subscription is Valid till ${date.toLocaleDateString()}`})
     }
     if (pay_method === "card"){
         const session = await stripe.checkout.sessions.create({
@@ -33,11 +35,22 @@ exports.payForSubscription = async (req, res, next) => {
                 }
             ], 
             mode: 'payment',
-            success_url: `http://localhost:3000/api/v1/payment/success/${email}`,
-            cancel_url: `http://localhost:3000/api/v1/payment/failed/${email}`,
+            success_url: `${base_url}/api/v1/payment/success/${email}`,
+            cancel_url: `${base_url}/api/api/v1/payment/failed/${email}`,
             client_reference_id: req.email
         });
 
+        user.transactions.push(session.id);
+        const userRef = doc(db, "Users",req.email);
+        await updateDoc(userRef, user);
+        const tranRef = doc(db, "Transactions", session.id);
+        const transaction = {
+            price: package.price,
+            currency: package.currency,
+            email: req.email,
+            status: "created"    
+        }
+        await setDoc(tranRef, transaction)
         // res.redirect(303, session.url)
         return res.json({
             status: 200,
@@ -53,8 +66,8 @@ exports.payForSubscription = async (req, res, next) => {
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": "http://localhost:3000/api/v1/payment/paypal_success",
-                "cancel_url": "http://localhost:3000/api/v1/payment/paypal_failure"
+                "return_url": `${base_url}/api/v1/payment/paypal_success`,
+                "cancel_url": `${base_url}/api/v1/payment/paypal_failure`
             },
             "transactions": [{
                 "item_list": {
@@ -62,12 +75,12 @@ exports.payForSubscription = async (req, res, next) => {
                         "name": package.title,
                         "sku": "001",
                         "price": package.price,
-                        "currency": "EUR",
+                        "currency": package.currency,
                         "quantity": 1
                     }]
                 },
                 "amount": {
-                    "currency": "EUR",
+                    "currency": package.currency,
                     "total": package.price
                 },
                 "description": "This is the payment description."
@@ -80,7 +93,7 @@ exports.payForSubscription = async (req, res, next) => {
             } else {
                 console.log("Create Payment Response");
                 console.log(payment);
-                user.Transactions.push(payment.id);
+                user.transactions.push(payment.id);
                 const userRef = doc(db, "Users",req.email);
                 await updateDoc(userRef, user);
                 const tranRef = doc(db, "Transactions", payment.id);
@@ -93,7 +106,7 @@ exports.payForSubscription = async (req, res, next) => {
                 await setDoc(tranRef, transaction)
                 for (let i= 0; i< payment.links.length; i++){
                   if (payment.links[i].rel === 'approval_url') {
-                    res.redirect(payment.links[i].href);}
+                    return res.json({status: 200, message: "Paypal Payment Initiated!", data: {checkoutUrl: payment.links[i].href} })}
                 }
             }
           });
@@ -105,13 +118,14 @@ exports.payForSubscription = async (req, res, next) => {
 exports.StripePaymentSuccess = async (req, res, next) => {
     const email = req.params.email;
 
-    let docRef = doc(db,"Users",email);
-    let docSnap = await getDoc(docRef);
-    let user = docSnap.data();
+    let userRef = doc(db,"Users",email);
+    let userSnap = await getDoc(userRef);
+    let user = userSnap.data();
 
     user.subscription_validity = new Date(new Date().setMonth(new Date().getMonth() + 1));
+    user.package_id = 'premium'
 
-    await updateDoc(docRef, user)
+    await updateDoc(userRef, user)
 
 
     res.redirect('/success.html')
@@ -155,8 +169,16 @@ exports.paypalSuccess = async (req, res) => {
           let docRef = doc(db, "Transactions",payment.id);
           let docSnap = await getDoc(docRef)
           let transaction = docSnap.data()
-          transaction.status = payment.status;
+          transaction.status = payment.state;
           updateDoc(docRef, transaction)
+          let userRef = doc(db, "Users", transaction.email);
+          userSnap = await getDoc(userRef);
+          let user = userSnap.data();
+          user.subscription_validity = new Date(new Date().setMonth(new Date().getMonth() + 1));
+          user.package_id = 'premium'
+      
+          await updateDoc(userRef, user)
+
           res.send('Successful payment');
         }
     });
