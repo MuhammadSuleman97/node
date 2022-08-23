@@ -28,10 +28,10 @@ exports.getAllQuestions = async (req, res, next) => {
         const querySnapshot = await getDocs(collection(db, "Questions"));
         let questions=[]
         querySnapshot.forEach((doc) => {
-            questions.push({title: doc.data().title, isLocked: doc.data().isLocked, is_attempted: req.user.attemptedQuestions.includes(doc.id), question_id: doc.id})
+            questions.push({title: doc.data().title, isLocked: doc.data().isLocked, is_attempted: req?.user?.attemptedQuestions.includes(doc.id), question_id: doc.id})
         });
         questions.sort()
-        return res.json({status: 200, message: "Retrieved all documents",data: {questions: questions, is_subscribed: new Date(req.user.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium'}})
+        return res.json({status: 200, message: "Retrieved all documents",data: {questions: questions, is_subscribed: new Date(req?.user?.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium'}})
     }
     catch(e)
     {

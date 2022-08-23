@@ -24,7 +24,7 @@ exports.updateUserProgress = async (req, res, next) => {
         
         let user = req.user
         user.attemptedQuestions.findIndex(q=>q==question_id)==-1?user.attemptedQuestions.push(question_id):''
-        user.progress = ((user.attemptedQuestions.length/Questions_length)*100).toFixed(2)+'%'
+        user.progress = parseFloat(((user.attemptedQuestions.length/Questions_length)).toFixed(2))
         const docRef = doc(db, "Users",req.email);
         await updateDoc(docRef, user)
         return res.json({status: 200, message: "Updated user",data: {user}})

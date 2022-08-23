@@ -19,7 +19,7 @@ exports.signup = async (req,res,next)=>{
             last_name: last_name,
             attemptedQuestions: [],
             transactions:[],
-            progress: '0%',
+            progress: 0.00,
             package_id:'free',
             subscription_validity: new Date(new Date().setFullYear(new Date().getFullYear() + 5))
         }
