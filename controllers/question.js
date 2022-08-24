@@ -52,8 +52,8 @@ exports.submitAnswer = async (req, res) => {
 
     let user = req.user;
 
-    if (!question_id || !answer || !isLocked) {
-        return res.json({status: 400, message: "Invalid question_id, answer or isLocked."});
+    if (!question_id || !answer ) {
+        return res.json({status: 400, message: "Invalid question_id or answer."});
     }
     // Write request here;
     let percentage = answer === "yes" ? 55 : 42;
@@ -81,5 +81,5 @@ exports.submitAnswer = async (req, res) => {
     updateDoc(userRef, user)
 
     let is_subscribed = new Date(user.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium';
-    return res.json({status: 200, message: " Your question has been evaluated!", data: {percentage: percentage, is_subscribed: is_subscribed, isLocked: isLocked }})
+    return res.json({status: 200, message: " Your question has been evaluated!", data: {percentage: percentage, is_subscribed: is_subscribed, isLocked: is_subscribed ? false : isLocked }})
 }
