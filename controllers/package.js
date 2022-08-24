@@ -16,5 +16,4 @@ exports.getAllPackages = async (req, res, next) => {
     return res.json({
         questions
     })
-    
 }
