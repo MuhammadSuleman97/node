@@ -3,7 +3,10 @@ const db = getFirestore();
 
 exports.getUserData = async (req, res, next) => {
     try{
-        return res.json({status:201, message: "User Received", data: {user: req.user}})
+        user = req.user;
+        let is_subscribed = new Date(req?.user?.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium';
+        user["is_subscribed"] = is_subscribed
+        return res.json({status:201, message: "User Received", data: {user: user}})
     }
     catch(e)
     {
