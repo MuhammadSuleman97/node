@@ -77,7 +77,7 @@ exports.submitAnswer = async (req, res) => {
     user.attemptedQuestions.findIndex(q=>q==question_id)==-1?user.attemptedQuestions.push(question_id):''
     user.progress = parseFloat(((user.attemptedQuestions.length/Questions_length)).toFixed(2))
 
-    let userRef = doc(db, 'Users', user.email)
+    let userRef = doc(db, 'Users', user.email.toLowerCase())
     updateDoc(userRef, user)
 
     let is_subscribed = new Date(user.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium';
