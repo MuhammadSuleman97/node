@@ -34,7 +34,6 @@ const questionAttemptEvent = async (email, question_id)  => {
         console.log("Error processing questionAttempted event: " + e.message); 
         return
     }
-    
 }
 
 module.exports = {
