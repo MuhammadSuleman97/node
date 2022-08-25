@@ -11,9 +11,9 @@ const paymentEvent = async (email, package) => {
     try{
         let EVENT = {
             email: email,
-            event: package + '-' + email,
+            event: email + '-' + package,
         };
-        let a = await pusher.trigger(email,"payment", EVENT);
+        let a = await pusher.trigger(email,EVENT.event, EVENT);
         return;
     }catch(e){
         console.log("Error processing payment event: " + e.message);
@@ -24,11 +24,11 @@ const questionAttemptEvent = async (email, question_id)  => {
     try{
         let EVENT = {
             email: email,
-            event: "questionAttempted",
-            question_id : email + '-' + question_id
+            event: email + '-' + question_id,
+            question_id : question_id
         };
 
-        let b = await pusher.trigger(email,"questionAttempted", EVENT);
+        let b = await pusher.trigger(email,EVENT.event, EVENT);
         return;
     }catch(e){ 
         console.log("Error processing questionAttempted event: " + e.message); 
