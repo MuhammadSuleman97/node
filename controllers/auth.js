@@ -12,7 +12,7 @@ exports.signup = async (req,res,next)=>{
             message: "invalid Data!"
         })}
         const user = {
-            email: email,
+            email: email.toLowerCase(),
             emailVerified: false,
             disabled: false,
             first_name: first_name,
@@ -79,7 +79,7 @@ exports.signIn = async (req, res, next) => {
 
 exports.forgetPassword = async (req, res, next) => {
     try{
-        const email = req.body.email;
+        const email = req.body.email.toLowerCase();
         if (!email){
             return res.json({status: 400, message:"Provide a valid Email Address!"})
         }
