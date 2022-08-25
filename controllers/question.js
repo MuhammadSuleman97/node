@@ -2,6 +2,7 @@ const {getFirestore, doc, setDoc, getDoc, getDocs, collection, updateDoc, getId}
 const db = getFirestore();
 const { getAuth } = require('firebase/auth');
 const auth = getAuth();
+const {questionAttemptEvent} = require('../utils/pusher')
 
 exports.getSingleQuestion = async (req, res, next) => {
     try{
@@ -48,6 +49,7 @@ exports.getAllQuestions = async (req, res, next) => {
 };
 
 exports.submitAnswer = async (req, res) => {
+    try{
     const {question_id, answer, isLocked} = req.body
 
     let user = req.user;
@@ -78,8 +80,10 @@ exports.submitAnswer = async (req, res) => {
     user.progress = parseFloat(((user.attemptedQuestions.length/Questions_length)).toFixed(2))
 
     let userRef = doc(db, 'Users', user.email.toLowerCase())
-    updateDoc(userRef, user)
+    updateDoc(userRef, user);
+    await questionAttemptEvent(req.email, question_id)
 
     let is_subscribed = new Date(user.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium';
     return res.json({status: 200, message: " Your question has been evaluated!", data: {percentage: percentage, is_subscribed: is_subscribed, isLocked: is_subscribed ? false : isLocked }})
+}catch(e){console.log(e); return e.message}  
 }

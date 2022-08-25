@@ -18,6 +18,7 @@
     "nodemon": "^2.0.19",
     "path": "^0.12.7",
     "paypal-rest-sdk": "^1.8.1",
+    "pusher": "^5.1.1-beta",
     "stripe": "^10.2.0"
   }
 }

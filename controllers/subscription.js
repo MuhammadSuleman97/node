@@ -2,9 +2,11 @@ const {getFirestore, doc, setDoc, getDoc, getDocs, collection, updateDoc} = requ
 const db = getFirestore();
 const stripe = require('stripe')('sk_test_51LVrjiJKThHcYZjG9TI5demkopupihchNUMbQzMrVHDr65l7EdeONvZ1gP6XMNvirdWrSVCVupFnqSFaBKruFd6H00w7vyJPot');
 const paypal = require('paypal-rest-sdk');
+const {paymentEvent} = require('../utils/pusher');
 const base_url = process.env.BASE_URL || 'http://localhost:3000'
 
 exports.payForSubscription = async (req, res, next) => {
+    try{
     const email = req.email;
     const user = req.user;
     const pay_method = req.query.pay_method
@@ -112,7 +114,8 @@ exports.payForSubscription = async (req, res, next) => {
           });
     } else{
         return res.json({status: 404, message: 'Invalid method'})
-    }
+    }}
+    catch(e){console.log(e); return e.messgae}
 };
 
 exports.StripePaymentSuccess = async (req, res, next) => {
@@ -125,8 +128,8 @@ exports.StripePaymentSuccess = async (req, res, next) => {
     user.subscription_validity = new Date(new Date().setMonth(new Date().getMonth() + 1));
     user.package_id = 'premium'
 
-    await updateDoc(userRef, user)
-
+    await updateDoc(userRef, user);
+    await paymentEvent(email, 'premium')
 
     res.redirect('/success.html')
 }
@@ -177,14 +180,15 @@ exports.paypalSuccess = async (req, res) => {
           user.subscription_validity = new Date(new Date().setMonth(new Date().getMonth() + 1));
           user.package_id = 'premium'
       
-          await updateDoc(userRef, user)
+          await updateDoc(userRef, user);
+          await paymentEvent(transaction.email, 'premium')
 
-          res.send('Successful payment');
+          res.redirect('/success.html')
         }
     });
 }
 
 exports.paypalCancel = (req, res) => {
-    res.send('Payment Cancelled');
+    res.redirect('/failure.html')
 }
 

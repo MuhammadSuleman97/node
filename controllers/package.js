@@ -5,15 +5,20 @@ const auth = getAuth();
 
 
 exports.getAllPackages = async (req, res, next) => {
+    try{
     let docRef = collection(db, "Package");
     let packages = await getDocs(docRef);
-    let questions = []
+    let package = []
     packages.forEach((doc) => {
-        questions.push({title: doc.data().title, id: doc.data().id, description: doc.data().description, price: doc.data().price})
+        package.push({title: doc.data().title, id: doc.data().id, description: doc.data().description, price: doc.data().price})
     // console.log(`${doc.id} => ${doc.data()}`);
     });
-    questions.sort()
+    package.sort()
     return res.json({
-        questions
-    })
+        status: 200,
+        data: {
+            Packages: package
+        }
+    })}
+    catch(err){console.log(err); return res.message}
 }
