@@ -88,7 +88,6 @@ exports.payForSubscription = async (req, res, next) => {
                 "description": "This is the payment description."
             }]
           };
-
           paypal.payment.create(create_payment_json, async function (error, payment) {
             if (error) {
                 throw error;
