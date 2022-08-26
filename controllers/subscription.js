@@ -130,7 +130,7 @@ exports.StripePaymentSuccess = async (req, res, next) => {
     await updateDoc(userRef, user);
     await paymentEvent(email, 'premium')
 
-    res.redirect('/test.html')
+    res.redirect('/success.html')
 }
 
 exports.StripePaymentCancel = async (req, res) => {
