@@ -8,7 +8,7 @@ exports.signup = async (req,res,next)=>{
     try{
         const {email, password,first_name,last_name} = req.body;
         if(!email || !password || !first_name || !last_name){return res.json({
-            status: "failed",
+            status: 400,
             message: "invalid Data!"
         })}
         const user = {
@@ -29,7 +29,12 @@ exports.signup = async (req,res,next)=>{
             
         }catch(e){
             console.log(e);
-            return res.json({status: 400, message: "Sorry, This Email is already Registered!" })
+            let message;
+            if (e.code == 'auth/invalid-email') {message = "Please Enter A valid email."}
+            else if(e.code == 'auth/weak-password'){message = "Please Enter a strong password."}
+            else if(e.code == 'auth/email-already-in-use') {message = "This Email is already Registered."}
+            else{ message = e.message }
+            return res.json({status: 400, message: message })
         }
         const docRef = doc(db, "Users",userResponse.user.email);
         user["accessToken"] = jwt.sign({id: email.toLowerCase()}, "ABCDEFG")
