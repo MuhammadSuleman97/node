@@ -29,9 +29,9 @@ exports.getSingleQuestion = async (req, res, next) => {
                         answers.push(ans)
                     }
                 })
-                let ANS = answers.reduce((a, b) => {
-                    return new Date(a.submit_at) > new Date(b.submit_at) ? a : b;
-                });
+                let ANS = answers.length ? answers.reduce((a, b) => {
+                    return new Date(a.submit_at) > new Date(b.submit_at) ? a : b; 
+                }): {};
                 question["answer"] = ANS
             }
             
