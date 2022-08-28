@@ -17,6 +17,24 @@ exports.getSingleQuestion = async (req, res, next) => {
                 question = (({ title, question_id, isLocked}) =>({title, question_id, isLocked: is_subscribed ? false : isLocked}))(question)
             }
             console.log("Document data:", docSnap.data());
+            const user = req.user;
+
+            let allAnswers = user?.answers ? user.answers : [];
+            let answers = []
+            if (allAnswers){
+                allAnswers.forEach((ans)=>{
+                    if (ans.question_id == req.params.id){
+                        let submit_at = new Date(ans.submit_at?.seconds * 1000)
+                        ans.submit_at = submit_at
+                        answers.push(ans)
+                    }
+                })
+                let ANS = answers.reduce((a, b) => {
+                    return new Date(a.submit_at) > new Date(b.submit_at) ? a : b;
+                });
+                question["answer"] = ANS
+            }
+            
             return res.json({status: 200, message: "Retrieved document",data :{question: question}})
           } else {
             console.log("No such Question!");

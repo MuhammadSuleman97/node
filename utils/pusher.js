@@ -11,7 +11,7 @@ const paymentEvent = async (email, package) => {
     try{
         let EVENT = {
             email: email,
-            event: email + '-' + package,
+            event: email + '-user',
         };
         let a = await pusher.trigger(email,EVENT.event, EVENT);
         return;
@@ -24,7 +24,7 @@ const questionAttemptEvent = async (email, question_id)  => {
     try{
         let EVENT = {
             email: email,
-            event: email + '-' + question_id,
+            event: email + '-question',
             question_id : question_id
         };
 
