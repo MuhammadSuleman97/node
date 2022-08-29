@@ -3,6 +3,7 @@ const db = getFirestore();
 const { getAuth } = require('firebase/auth');
 const auth = getAuth();
 const {questionAttemptEvent} = require('../utils/pusher')
+const axios = require('axios');
 
 exports.getSingleQuestion = async (req, res, next) => {
     try{
@@ -76,7 +77,22 @@ exports.submitAnswer = async (req, res) => {
         return res.json({status: 400, message: "Invalid question_id or answer."});
     }
     // Write request here;
-    let percentage = answer === "yes" ? 55 : 42;
+    let percentage;
+    await axios
+    .post('http://939e-35-236-178-157.ngrok.io/please', {
+        ques_id: question_id,
+        text: answer
+    })
+    .then(res => {
+        percentage = res.data.result
+        console.log(`statusCode: ${res.status}`);
+        console.log(res);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+    if (percentage) { percentage = percentage.toFixed(2) } 
+    // let percentage = answer === "yes" ? 55 : 42;
 
     let ans = {
         question_id: question_id,
