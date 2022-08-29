@@ -79,7 +79,7 @@ exports.submitAnswer = async (req, res) => {
     // Write request here;
     let percentage;
     await axios
-    .post('http://0207-35-236-178-157.ngrok.io/predictings', {
+    .post('http://2fb2-34-134-51-38.ngrok.io/calculate', {
         ques_id: question_id-1,
         text: answer
     })
