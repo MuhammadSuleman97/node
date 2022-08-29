@@ -93,7 +93,7 @@ exports.submitAnswer = async (req, res) => {
     });
     if (percentage) { 
         if (percentage < 45){
-            percentage > 20 ? percentage -= 20 : percentage =0;
+            percentage > 20 ? percentage -= 20 : percentage =1;
 
         }
         percentage = percentage.toFixed(2) }
