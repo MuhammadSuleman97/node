@@ -87,6 +87,7 @@ exports.submitAnswer = async (req, res) => {
         percentage = res.data.result
         console.log(`statusCode: ${res.status}`);
         console.log(res);
+        
     })
     .catch(error => {
         console.error(error);
