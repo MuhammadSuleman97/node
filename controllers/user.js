@@ -6,8 +6,9 @@ exports.getUserData = async (req, res, next) => {
     try{
         user = req.user;
         let is_subscribed = new Date(req?.user?.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium';
-        user["suscriptionvalidity"] = moment(new Date(user.subscription_validity.seconds * 1000)).format('MMMM DD, YYYY')
+        user["suscriptionvalidity"] = user.package_id == 'premium' ? moment(new Date(user.subscription_validity.seconds * 1000)).format('MMMM DD, YYYY') : "Lifetime"
         user["is_subscribed"] = is_subscribed
+
         return res.json({status:201, message: "User Received", data: {user: user}})
     }
     catch(e)
