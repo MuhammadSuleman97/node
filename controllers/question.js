@@ -79,7 +79,7 @@ exports.submitAnswer = async (req, res) => {
     // Write request here;
     let percentage;
     await axios
-    .post('http://8b23-35-237-192-94.ngrok.io/predict', {
+    .post('http://1247-35-185-34-192.ngrok.io/predict', {
         ques_id: (question_id-1),
         text: answer
     })
@@ -124,6 +124,6 @@ exports.submitAnswer = async (req, res) => {
     await questionAttemptEvent(req.email, question_id)
 
     let is_subscribed = new Date(user.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium';
-    return res.json({status: 200, message: " Your question has been evaluated!", data: {percentage: percentage, is_subscribed: is_subscribed, isLocked: is_subscribed ? false : isLocked }})
+    return res.json({status: 200, message: " Your question has been evaluated!", data: {percentage: percentage ? percentage : 1, is_subscribed: is_subscribed, isLocked: is_subscribed ? false : isLocked }})
 }catch(e){console.log(e); return e.message}  
 }
