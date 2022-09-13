@@ -49,6 +49,7 @@ exports.getSingleQuestion = async (req, res, next) => {
     }
 }
 
+
 exports.getAllQuestions = async (req, res, next) => {
     try{
         const querySnapshot = await getDocs(collection(db, "Questions"));
