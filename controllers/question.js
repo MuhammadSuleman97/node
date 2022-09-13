@@ -58,7 +58,9 @@ exports.getAllQuestions = async (req, res, next) => {
         querySnapshot.forEach((doc) => {
             questions.push({title: doc.data().title, isLocked: is_subscribed ? false : doc.data().isLocked, is_attempted: req?.user?.attemptedQuestions.includes(doc.id), question_id: doc.id, data: doc.data().data})
         });
-        questions.sort()
+        questions.sort(function(a, b) { 
+            return parseInt(a.question_id) - parseInt(b.question_id);
+        })
         return res.json({status: 200, message: "Retrieved all documents",data: {questions: questions, is_subscribed: is_subscribed }})
     }
     catch(e)
