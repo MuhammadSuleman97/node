@@ -55,7 +55,7 @@ exports.getAllQuestions = async (req, res, next) => {
         let questions=[]
         let is_subscribed = new Date(req?.user?.subscription_validity.seconds * 1000) > new Date() && req.user.package_id == 'premium'
         querySnapshot.forEach((doc) => {
-            questions.push({title: doc.data().title, isLocked: is_subscribed ? false : doc.data().isLocked, is_attempted: req?.user?.attemptedQuestions.includes(doc.id), question_id: doc.id})
+            questions.push({title: doc.data().title, isLocked: is_subscribed ? false : doc.data().isLocked, is_attempted: req?.user?.attemptedQuestions.includes(doc.id), question_id: doc.id, data: doc.data().data})
         });
         questions.sort()
         return res.json({status: 200, message: "Retrieved all documents",data: {questions: questions, is_subscribed: is_subscribed }})
