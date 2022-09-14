@@ -44,6 +44,7 @@ exports.updateUserProgress = async (req, res, next) => {
 }
 
 exports.updateUser= async (req, res, next) => {
+    try{
     const first_name = req.body.first_name;
     const last_name = req.body.last_name;
     
@@ -58,4 +59,5 @@ exports.updateUser= async (req, res, next) => {
     const docRef = doc(db, "Users",req.email);
     await updateDoc(docRef, user)
     return res.json({status:201, message: "User Updated", data: {user: user}})
+}catch(e){console.log(e); return e.message}
 }
