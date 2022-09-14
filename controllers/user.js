@@ -49,7 +49,7 @@ exports.updateUser= async (req, res, next) => {
     const last_name = req.body.last_name;
     
     if (!first_name || !last_name){
-        console.log(e);
+        // console.log(e);
         return res.json({status: 400, message:"Please Provide First & Last Name!"})
     }
 
