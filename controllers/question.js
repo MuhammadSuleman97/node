@@ -82,7 +82,7 @@ exports.submitAnswer = async (req, res) => {
     // Write request here;
     let percentage;
     await axios
-    .post('http://a7ae-34-132-121-43.ngrok.io/predict', {
+    .post('http://52.14.142.231:5000/predict', {
         ques_id: (question_id-1),
         text: answer
     })
@@ -96,8 +96,8 @@ exports.submitAnswer = async (req, res) => {
         console.error(error);
     });
     if (percentage) { 
-        if (percentage < 45){
-            percentage > 20 ? percentage -= 20 : percentage =1;
+        if (percentage < 70){
+            percentage > 30 ? percentage -= 30 : percentage =1;
 
         }
         percentage = percentage.toFixed(2) }
