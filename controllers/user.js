@@ -42,3 +42,22 @@ exports.updateUserProgress = async (req, res, next) => {
         return res.json({status: 400, message:e.message})
     }
 }
+
+exports.updateUser= async (req, res, next) => {
+    try{
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    
+    if (!first_name || !last_name){
+        // console.log(e);
+        return res.json({status: 400, message:"Please Provide First & Last Name!"})
+    }
+
+    let user = req.user;
+    user.first_name = first_name;
+    user.last_name = last_name;
+    const docRef = doc(db, "Users",req.email);
+    await updateDoc(docRef, user)
+    return res.json({status:201, message: "User Updated", data: {user: user}})
+}catch(e){console.log(e); return e.message}
+}

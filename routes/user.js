@@ -7,5 +7,6 @@ const UserCtrl = require('../controllers/user')
 
 router.get('/', authenticateToken,UserCtrl.getUserData);
 router.post('/update', authenticateToken,UserCtrl.updateUserProgress)
+router.post('/updateuser', authenticateToken, UserCtrl.updateUser)
 
 module.exports = router
